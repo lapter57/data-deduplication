@@ -1,0 +1,4 @@
+server:
+  port: ${PORT}
+  servlet:
+    context-path: /api
