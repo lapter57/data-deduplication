@@ -2,3 +2,8 @@ server:
   port: ${PORT}
   servlet:
     context-path: /api
+
+spring:
+  data:
+    mongodb:
+      uri: ${DB_URI}
