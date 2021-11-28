@@ -10,11 +10,11 @@ public abstract class AbstractEntityService<E, K, R extends ReactiveCrudReposito
 
     protected final R repository;
 
-    protected Mono<E> insert(final E entity) {
+    public Mono<E> insert(final E entity) {
         return repository.save(entity);
     }
 
-    protected Mono<E> findById(final K id) {
+    public Mono<E> findById(final K id) {
         return repository.findById(id);
     }
 }

@@ -32,7 +32,7 @@ class FileServiceTest {
 
     @Test
     void testInsertFile() {
-        final var file = new File(1L, List.of("hash1", "hash2"), "image/png");
+        final var file = new File("1", List.of("hash1", "hash2"), "image/png");
         StepVerifier.create(fileService.insert(file))
                 .expectNext(file)
                 .expectComplete()
@@ -41,8 +41,8 @@ class FileServiceTest {
 
     @Test
     void testFindFileById() {
-        final var file = fileService.insert(new File(1L, List.of("hash1", "hash2"), "image/png")).block();
-        fileService.insert(new File(2L, List.of("hash3"), "image/jpeg")).block();
+        final var file = fileService.insert(new File("1", List.of("hash1", "hash2"), "image/png")).block();
+        fileService.insert(new File("2", List.of("hash3"), "image/jpeg")).block();
         StepVerifier.create(fileService.findById(file.id()))
                 .expectNext(file)
                 .expectComplete()

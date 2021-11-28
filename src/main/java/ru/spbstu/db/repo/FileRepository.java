@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.spbstu.db.model.File;
 
 @Repository
-public interface FileRepository extends ReactiveMongoRepository<File, Long> {
+public interface FileRepository extends ReactiveMongoRepository<File, String> {
 }

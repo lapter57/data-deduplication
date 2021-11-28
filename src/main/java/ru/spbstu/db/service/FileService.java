@@ -5,7 +5,7 @@ import ru.spbstu.db.model.File;
 import ru.spbstu.db.repo.FileRepository;
 
 @Service
-public class FileService extends AbstractEntityService<File, Long, FileRepository> {
+public class FileService extends AbstractEntityService<File, String, FileRepository> {
 
     protected FileService(final FileRepository repository) {
         super(repository);
