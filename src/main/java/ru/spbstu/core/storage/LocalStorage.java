@@ -17,20 +17,9 @@ public class LocalStorage implements Storage {
     private String basePath;
 
     @Override
-    public boolean connect() {
-        return true;
-    }
-
-    @Override
-    public void disconnect() {
-
-    }
-
-    @Override
-    public boolean save(ByteFile file, String location) {
+    public void save(ByteFile file, String location) {
         try {
             Files.write(Path.of(basePath, location), file.bytes());
-            return true;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't write file", e);
         }
@@ -44,10 +33,5 @@ public class LocalStorage implements Storage {
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file " + location, e);
         }
-    }
-
-    @Override
-    public void close() {
-        disconnect();
     }
 }
