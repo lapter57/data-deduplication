@@ -1,9 +1,9 @@
 server:
   port: ${PORT}
-  servlet:
-    context-path: /api
 
 spring:
+  webflux:
+    base-path: /api
   data:
     mongodb:
       uri: ${DB_URI}
