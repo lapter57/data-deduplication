@@ -17,3 +17,6 @@ services:
     environment:
       - PORT=8080
       - DB_URI=mongodb://mongodb:27017/data_deduplication
+      - HASH_TYPE=SHA-256
+      - BLOCK_SIZE=32768
+      - BASE_PATH=/tmp
