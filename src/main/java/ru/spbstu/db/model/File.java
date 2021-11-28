@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Document(collection = "files")
-public record File(@Id Long id,
+public record File(@Id String id,
                    List<String> hashes,
                    String mimeType) {
 }
