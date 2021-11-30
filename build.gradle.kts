@@ -23,6 +23,9 @@ dependencies {
     implementation("org.springframework:spring-webmvc:5.3.13")
     implementation("org.springframework.boot:spring-boot-starter-web:2.6.0")
 
+    implementation("io.springfox:springfox-swagger2:3.0.0")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
+
 
 
     implementation("com.google.guava:guava:31.0.1-jre")
