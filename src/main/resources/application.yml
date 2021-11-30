@@ -16,3 +16,4 @@ storage:
   blockSize: ${BLOCK_SIZE}
   basePath: ${BASE_PATH}
   hashType: ${HASH_TYPE}
+
