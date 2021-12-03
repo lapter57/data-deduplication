@@ -3,3 +3,5 @@
 *.iml
 **/out
 /.gradle
+metrics/venv
+metrics/__pycache__
