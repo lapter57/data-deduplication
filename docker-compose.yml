@@ -2,21 +2,24 @@ version: '3'
 services:
   mongodb:
     image: mongo:bionic
+    container_name: mongo
     environment:
-      - MONGO_INIT_DATABASE=data_deduplication
+    - MONGO_INIT_DATABASE=data_deduplication
     ports:
-      - "27017:27017"
+    - 27017:27017
   app:
     build: .
+    container_name: data-deduplication_app
     expose:
-      - 8080
+    - 8080
     ports:
-      - "8080:8080"
+    - 8080:8080
     depends_on:
-      - mongodb
+    - mongodb
     environment:
-      - PORT=8080
-      - DB_URI=mongodb://mongodb:27017/data_deduplication
-      - HASH_TYPE=SHA-256
-      - BLOCK_SIZE=32768
-      - BASE_PATH=/tmp
+    - PORT=8080
+    - BLOCK_SIZE=256
+    - HASH_TYPE=SHA-256
+    - BLOCK_SIZE=32768
+    - BASE_PATH=/tmp
+    - DB_URI=mongodb://mongodb:27017/data_deduplication
