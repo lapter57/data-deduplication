@@ -1,6 +1,7 @@
 package ru.spbstu.core.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class FileController {
@@ -37,11 +39,10 @@ public class FileController {
     private final FileService fileService;
     private final HashConverter hashConverter;
 
-
     @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody
-    public ResponseEntity<String> uploadFile(
-            @RequestPart("file") MultipartFile file) throws IOException, ExecutionException, InterruptedException, TimeoutException {
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file)
+            throws IOException, ExecutionException, InterruptedException, TimeoutException {
         final var parts = splitter.split(file.getInputStream());
         final var hashes = parts.stream()
                 .map(byteFile -> Pair.of(hashConverter.toHash(byteFile.bytes()), byteFile))
@@ -57,6 +58,8 @@ public class FileController {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(1, TimeUnit.HOURS);
 
         final var id = saveFileToDB(hashes.stream().map(Pair::getKey).toList(), file.getContentType());
+        log.debug("Saved file: id = {} ; mime = {}", id, file.getContentType());
+
         return ResponseEntity.created(URI.create(id)).body(id);
     }
 
