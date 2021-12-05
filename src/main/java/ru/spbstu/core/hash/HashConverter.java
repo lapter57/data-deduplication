@@ -41,8 +41,7 @@ public class HashConverter {
             return Arrays.stream(Hashes.values())
                     .filter(hash -> hash.name.equals(name.toLowerCase()))
                     .findFirst()
-                    .orElseThrow(
-                            () -> new IllegalArgumentException(String.format("Hash function %s doesn't exists", name)));
+                    .orElseThrow(() -> new IllegalArgumentException(String.format("Hash function %s doesn't exists", name)));
         }
     }
 }

@@ -7,10 +7,6 @@ spring:
   data:
     mongodb:
       uri: ${DB_URI}
-  servlet:
-    multipart:
-      max-file-size: 1GB
-      max-request-size: 1GB
 
 storage:
   blockSize: ${BLOCK_SIZE}
