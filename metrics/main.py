@@ -9,7 +9,8 @@ import magic
 import requests
 import ruamel.yaml
 
-from aggregate_metrics import compute_deduplication
+from aggregate_metrics import compute_deduplication, compute_time
+from utilities import cleanup
 
 
 APP_URL = 'http://localhost:8080'
@@ -59,5 +60,9 @@ while block_size <= 256:
     get_mongo_data = subprocess.run(['docker-compose exec mongodb mongo data_deduplication --quiet --eval "db.stats()"'], capture_output=True, text=True, shell=True)
     mongo_info = json.loads(get_mongo_data.stdout)
 
-    deduplication_metrics = compute_deduplication(mongo_info['dataSize'])
+    deduplication_metrics = compute_deduplication(mongo_info['dataSize'], block_size)
+    cleanup()
     block_size *= 2
+
+upload_time = compute_time(upload_metrics)
+download_time = compute_time(download_metrics)

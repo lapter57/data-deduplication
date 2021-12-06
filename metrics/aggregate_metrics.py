@@ -10,9 +10,9 @@ def get_dir_size(dir_path: str):
 
 
 def compute_deduplication(db_info: int, block_size: int):
-    src_data_dir = path.join('test_data')
+    src_data_dir = path.join('metrics/test_data')
     src_data_size = get_dir_size(src_data_dir)
-    blocks_size = get_dir_size('blocks')
+    blocks_size = get_dir_size('metrics/blocks')
     deduplication_metric = src_data_size / (blocks_size + db_info)
     with open(f'deduplication_info_{block_size}.json', 'w') as deduplication_outp:
         json.dump({'block_size': block_size,
@@ -33,6 +33,7 @@ def compute_time(metric: dict, **kwargs):
         time_metric[block_size] = {file_type: total_time/len(metric[block_size][file_type])}
         total_time = 0
     print(time_metric)
+    return time_metric
 
 
 if __name__ == '__main__':
