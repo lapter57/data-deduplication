@@ -5,3 +5,4 @@
 /.gradle
 metrics/venv
 metrics/__pycache__
+metrics/test_data/*
