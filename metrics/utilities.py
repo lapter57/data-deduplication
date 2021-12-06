@@ -10,6 +10,12 @@ def cleanup():
     os.system('docker rmi $(docker images -a -q)')
     files = glob.glob('metrics/blocks/*')
     for file in files:
+        if path.isdir(file):
+            shutil.rmtree(file)
+        else:
+            os.remove(file)
+    downloaded_files = glob.glob('metrics/downloaded_data/*')
+    for file in downloaded_files:
         os.remove(file)
 
 

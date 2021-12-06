@@ -58,6 +58,7 @@ while block_size <= 256:
         download_metrics[block_size][file_format].append({'time': download_time,
                                                           'file_size': os.stat(f'metrics/downloaded_data/{file_id}.{file_format}').st_size})
     get_mongo_data = subprocess.run(['docker-compose exec mongodb mongo data_deduplication --quiet --eval "db.stats()"'], capture_output=True, text=True, shell=True)
+    print(get_mongo_data.stdout)
     mongo_info = json.loads(get_mongo_data.stdout)
 
     deduplication_metrics = compute_deduplication(mongo_info['dataSize'], block_size)
