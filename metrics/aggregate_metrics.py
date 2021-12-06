@@ -26,10 +26,7 @@ def compute_time(metric: dict, **kwargs):
     for block_size in metric:
         for file_type in metric[block_size]:
             for item in metric[block_size][file_type]:
-                current_time = item['time']
-                print(current_time)
-                print(type(current_time))
-                total_time += current_time
+                total_time += item['time']
         time_metric[block_size] = {file_type: total_time/len(metric[block_size][file_type])}
         total_time = 0
     print(time_metric)
