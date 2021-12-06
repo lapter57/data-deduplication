@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FileController {
 
+    private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     private static final Executor EXECUTOR = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors() + 1);
 
@@ -57,8 +59,11 @@ public class FileController {
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(1, TimeUnit.HOURS);
 
-        final var id = saveFileToDB(hashes.stream().map(Pair::getKey).toList(), file.getContentType());
-        log.debug("Saved file: id = {} ; mime = {}", id, file.getContentType());
+        final var contentType = Optional.ofNullable(file.getContentType()).orElse(DEFAULT_CONTENT_TYPE);
+
+        final var id = saveFileToDB(hashes.stream().map(Pair::getKey).toList(), contentType);
+
+        log.debug("Saved file: id = {} ; mime = {}", id, contentType);
 
         return ResponseEntity.created(URI.create(id)).body(id);
     }
