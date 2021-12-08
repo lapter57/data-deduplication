@@ -1,6 +1,5 @@
 package ru.spbstu.core.file;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,29 +10,26 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Component
 public class StandardSplitter implements Splitter {
     @Value("${storage.blockSize}")
     private int blockSize;
 
     @Override
-    public List<ByteFile> split(final InputStream stream) throws RuntimeException {
+    public List<ByteFile> split(final InputStream stream) {
         final var list = new ArrayList<ByteFile>();
-        var length = 0L;
-        do {
-            try {
+        try {
+            while (stream.available() > 0) {
                 list.add(new ByteFile(stream.readNBytes(blockSize)));
-                length = stream.skip(blockSize);
-            } catch (IOException e) {
-                throw new RuntimeException("Couldn't split file", e);
             }
-        } while (length == blockSize);
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't split file", e);
+        }
         return list;
     }
 
     @Override
-    public InputStream combine(final List<ByteFile> files) throws RuntimeException {
+    public InputStream combine(final List<ByteFile> files) {
         final var output = new ByteArrayOutputStream();
 
         files.forEach(file -> {

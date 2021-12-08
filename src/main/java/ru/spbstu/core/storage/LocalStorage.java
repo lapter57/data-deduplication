@@ -1,36 +1,33 @@
 package ru.spbstu.core.storage;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.spbstu.core.file.ByteFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
-@RequiredArgsConstructor
+@Slf4j
 @Component
 public class LocalStorage implements Storage {
     @Value("${storage.basePath}")
     private String basePath;
 
-    @Override
-    public boolean connect() {
-        return true;
+    @PostConstruct
+    private void createBasePath() throws IOException {
+        Files.createDirectories(Paths.get(basePath));
+        log.info("Created {}", basePath);
     }
 
     @Override
-    public void disconnect() {
-
-    }
-
-    @Override
-    public boolean save(ByteFile file, String location) {
+    public void save(ByteFile file, String location) {
         try {
             Files.write(Path.of(basePath, location), file.bytes());
-            return true;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't write file", e);
         }
@@ -44,10 +41,5 @@ public class LocalStorage implements Storage {
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file " + location, e);
         }
-    }
-
-    @Override
-    public void close() {
-        disconnect();
     }
 }
