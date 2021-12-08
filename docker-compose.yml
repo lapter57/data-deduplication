@@ -3,20 +3,22 @@ services:
   mongodb:
     image: mongo:bionic
     environment:
-      - MONGO_INIT_DATABASE=data_deduplication
+    - MONGO_INIT_DATABASE=data_deduplication
     ports:
-      - "27017:27017"
+    - 27017:27017
   app:
     build: .
     expose:
-      - 8080
+    - 8080
     ports:
-      - "8080:8080"
+    - 8080:8080
     depends_on:
-      - mongodb
+    - mongodb
+    volumes:
+    - ./metrics/blocks:/tmp
     environment:
-      - PORT=8080
-      - DB_URI=mongodb://mongodb:27017/data_deduplication
-      - HASH_TYPE=SHA-256
-      - BLOCK_SIZE=32768
-      - BASE_PATH=/tmp
+    - PORT=8080
+    - BASE_PATH=/tmp
+    - DB_URI=mongodb://mongodb:27017/data_deduplication
+    - BLOCK_SIZE=4
+    - HASH_TYPE=SHA-256
