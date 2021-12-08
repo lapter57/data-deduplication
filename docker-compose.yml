@@ -18,7 +18,7 @@ services:
     - ./metrics/blocks:/tmp
     environment:
     - PORT=8080
-    - BLOCK_SIZE=256
-    - HASH_TYPE=SHA-256
     - BASE_PATH=/tmp
     - DB_URI=mongodb://mongodb:27017/data_deduplication
+    - BLOCK_SIZE=4
+    - HASH_TYPE=SHA-256

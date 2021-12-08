@@ -1,7 +1,10 @@
 import os
 import os.path as path
+import uuid
+import random
 import glob
 import shutil
+import string
 
 
 def cleanup():
@@ -19,7 +22,9 @@ def cleanup():
         os.remove(file)
 
 
-if __name__ == '__main__':
-    work_dir = path.abspath(path.join(__file__, '../../'))
-    os.chdir(work_dir)
-    cleanup()
+def gen_test_data():
+    mb_file_size = random.randint(1, 8)
+    current_file_name = f'metrics/test_data/{uuid.uuid4()}.txt'
+    with open(current_file_name, 'wb') as test_file:
+        while os.fstat(test_file.fileno()).st_size < mb_file_size * 1024**2:
+            test_file.write(str([random.choice(string.ascii_letters) for _ in range(10000)]).encode('utf-8'))
