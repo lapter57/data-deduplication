@@ -14,16 +14,14 @@ from loguru import logger
 from progress.bar import IncrementalBar
 
 from aggregate_metrics import compute_deduplication, compute_time, draw_graph, get_dir_size
-from utilities import cleanup
-
-# 'SHA-512'
-# 32768
+from utilities import cleanup, setup_context
 
 
 APP_URL = 'http://localhost:8080'
 
 work_dir = path.abspath(path.join(__file__, '../../'))
 os.chdir(work_dir)
+setup_context()
 
 while get_dir_size('metrics/test_data') < 5368709120:
     logger.info(f'Generate test file. Current test data size: {get_dir_size("metrics/test_data")}')
@@ -33,7 +31,7 @@ while get_dir_size('metrics/test_data') < 5368709120:
 source_compose = ruamel.yaml.YAML(typ='safe')
 with open('docker-compose.yml', 'r') as src_f:
     source_compose = ruamel.yaml.load(src_f)
-block_size = 4
+block_size = 256
 for hash_function in ['SHA-256', 'MURMUR3_128']:
     while block_size <= 65536:
         logger.info(f'{"="*10}{block_size=}{"="*10}{hash_function=}')
@@ -63,6 +61,7 @@ for hash_function in ['SHA-256', 'MURMUR3_128']:
                                                                                     upload_file,
                                                                                     mime.from_file(f'metrics/test_data/{file_to_upload}'))})
                 upload_time = (datetime.datetime.now() - upload_start_time).total_seconds()
+                logger.info(f'Server response: {upload_data.text}\n')
                 bar.next()
                 if upload_data.status_code // 100 == 2:
                     total_upload_time.append({'time': upload_time,
@@ -92,6 +91,6 @@ for hash_function in ['SHA-256', 'MURMUR3_128']:
         cleanup()
         block_size *= 2
     draw_graph('deduplication', hash_function)
-    block_size = 4
+    block_size = 256
 draw_graph('upload')
 draw_graph('download')

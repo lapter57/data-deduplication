@@ -19,3 +19,14 @@ def cleanup():
     downloaded_files = glob.glob('metrics/downloaded_data/*')
     for file in downloaded_files:
         os.remove(file)
+
+
+def setup_context():
+    if not path.exists('metrics/test_data'):
+        os.makedirs('metrics/test_data')
+    if not path.exists('metrics/blocks'):
+        os.makedirs('metrics/blocks')
+    if not path.exists('metrics/downloaded_data'):
+        os.makedirs('metrics/downloaded_data')
+    if not path.exists('metrics/graphs'):
+        os.makedirs('metrics/graphs')
