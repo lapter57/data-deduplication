@@ -1,15 +1,12 @@
+import glob
 import os
 import os.path as path
-import uuid
-import random
-import glob
 import shutil
-import string
 
 
 def cleanup():
-    os.system('docker stop $(docker ps -a -q)')
-    os.system('docker rm -v mongo')
+    os.system("docker-compose exec mongodb mongo data_deduplication --quiet --eval \"db.dropDatabase()\"")
+    os.system("docker-compose stop")
     files = glob.glob('metrics/blocks/*')
     for file in files:
         if path.isdir(file):
@@ -19,6 +16,11 @@ def cleanup():
     downloaded_files = glob.glob('metrics/downloaded_data/*')
     for file in downloaded_files:
         os.remove(file)
+
+
+def start_dockers():
+    os.system('docker-compose up --build -d mongodb')
+    os.system('docker-compose up -d app')
 
 
 def setup_context():

@@ -14,7 +14,7 @@ from loguru import logger
 from progress.bar import IncrementalBar
 
 from aggregate_metrics import compute_deduplication, compute_time, draw_graph, get_dir_size
-from utilities import cleanup, setup_context
+from utilities import cleanup, setup_context, start_dockers
 
 
 APP_URL = 'http://localhost:8080'
@@ -51,7 +51,7 @@ for hash_function in ['SHA-256', 'MURMUR3_128']:
             target_compose = ruamel.yaml.YAML()
             target_compose.dump(source_compose, src_f)
         print(hash_function)
-        os.system('docker-compose up --build -d')
+        start_dockers()
         time.sleep(60)
         # upload data
         files_id = []
@@ -74,7 +74,7 @@ for hash_function in ['SHA-256', 'MURMUR3_128']:
         # download data
         bar = IncrementalBar('Downloading files', max=len(files_id))
         for file_id in files_id:
-            with open(path.join(f'metrics/downloaded_data/{file_id}.{file_format}'), 'wb') as download_file:
+            with open(path.join(f'metrics/downloaded_data/{file_id["file_id"]}.{file_id["file_format"]}'), 'wb') as download_file:
                 download_start_time = datetime.datetime.now()
                 download_data = requests.get(f'{APP_URL}/api/file/{file_id["file_id"]}', allow_redirects=True)
                 download_file.write(download_data.content)
