@@ -23,7 +23,11 @@ work_dir = path.abspath(path.join(__file__, '../../'))
 os.chdir(work_dir)
 setup_context()
 
-while get_dir_size('metrics/test_data') < 5368709120:
+MAX_SIZE_GB = 2
+MAX_BLOCK_SIZE = 65536
+MIN_BLOCK_SIZE = 256
+
+while get_dir_size('metrics/test_data') < MAX_SIZE_GB * 1024*1024*1024:
     logger.info(f'Generate test file. Current test data size: {get_dir_size("metrics/test_data")}')
     os.system(f'head -c {random.randint(1, 30)}M </dev/urandom >metrics/test_data/{uuid.uuid4()}.txt')
 
@@ -31,9 +35,9 @@ while get_dir_size('metrics/test_data') < 5368709120:
 source_compose = ruamel.yaml.YAML(typ='safe')
 with open('docker-compose.yml', 'r') as src_f:
     source_compose = ruamel.yaml.load(src_f)
-block_size = 256
+block_size = MAX_BLOCK_SIZE
 for hash_function in ['SHA-256', 'MURMUR3_128']:
-    while block_size <= 65536:
+    while block_size >= MIN_BLOCK_SIZE:
         logger.info(f'{"="*10}{block_size=}{"="*10}{hash_function=}')
         total_upload_time = []
         total_download_time = []
@@ -89,8 +93,8 @@ for hash_function in ['SHA-256', 'MURMUR3_128']:
         compute_time(total_upload_time, block_size, 'upload', hash_function)
         compute_time(total_download_time, block_size, 'download', hash_function)
         cleanup()
-        block_size *= 2
+        block_size /= 2
     draw_graph('deduplication', hash_function)
-    block_size = 256
+    block_size = MAX_BLOCK_SIZE
 draw_graph('upload')
 draw_graph('download')
