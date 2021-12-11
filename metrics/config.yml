@@ -1,0 +1,23 @@
+data:
+  need_create: true
+  path: test_data
+  size: 2 GB
+  min_file_size: 1 MB
+  max_file_size: 30 MB
+
+block:
+  min_size: 512 B
+  max_size: 64 KB
+  denominator: 2
+  hash_functions:
+    - SHA-256
+    - MURMUR3-128
+
+project:
+  path: ../
+  api_url: http://localhost:8080/api
+  storage_path: /storage
+
+result:
+  plots_path: plots
+  data_path: saved_data

@@ -12,8 +12,6 @@ services:
       - 8080
     ports:
       - "8080:8080"
-    volumes:
-      - ./metrics/blocks:/data
     depends_on:
       - mongodb
     environment:

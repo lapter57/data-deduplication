@@ -5,3 +5,8 @@
 /.gradle
 metrics/venv
 metrics/__pycache__
+metrics/lib/__pycache__
+metrics/test_data
+metrics/saved_data
+metrics/plots
+:
