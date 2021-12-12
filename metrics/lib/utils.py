@@ -117,3 +117,13 @@ def plot_time(hash_function, hash_function_info_path, plots_path):
         fig.figure.suptitle(f"Median time of {metric}")
         fig.figure.savefig(os.path.join(plots_path, f"{metric}_{hash_function}.png"))
         plt.close()
+
+
+def write_file(path, data):
+    text_file = open(path, "wb")
+    text_file.write(data)
+    text_file.close()
+
+
+def insert_into_array(base, x, pos):
+    return base[:pos] + x + base[pos:]

@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 from lib.utils import get_dir_size_bytes, block_sizes_generator, stop_dockers, plot_deduplication, plot_time, \
     human_read_to_bytes, start_dockers, get_storage_size, \
-    get_mongo_data_size, create_path
+    get_mongo_data_size, create_path, write_file, insert_into_array
 
 
 class Tester:
@@ -26,6 +26,42 @@ class Tester:
         self.test_data_size = self.__create_test_data()
 
     def __create_test_data(self):
+        def modify_file(base, min_change_size, max_change_size, min_change_blocks, max_change_blocks, remove_percentage):
+            def get_add_status():
+                return random.randint(1, 1000) >= (remove_percentage * 10)
+
+            current_len = len(base)
+            modify_size = random.randint(min_change_size, max_change_size)
+            modify_blocks = random.randint(min_change_blocks, max_change_blocks)
+            blocks = [(get_add_status(), random.randint(0, current_len), size) for size in
+                      np.random.multinomial(modify_size, np.ones(modify_blocks) / modify_blocks, size=1)[0]]
+            blocks = sorted(blocks, reverse=True)
+            for status, pos, size in blocks:
+                if not status:
+                    if pos + size <= current_len:
+                        base = base[:pos] + base[pos + size:]
+                    else:
+                        base = base[:pos]
+                else:
+                    add_data = os.urandom(size)
+                    end_pos = size + pos
+                    if end_pos > current_len:
+                        end_pos = current_len
+                    base = base_file[:pos] + add_data + base_file[end_pos:]
+            return base
+
+        def fit_size_requirements(file, min_size, max_size):
+            current_size = len(file)
+            if min_size <= current_size <= max_size:
+                return file
+            elif current_size > max_size:
+                return file[:max_size]
+            elif current_size < min_size:
+                add_size = min_size - current_size
+                add_data = os.urandom(add_size)
+                insert_pos = random.randint(0, min_size - add_size)
+                return insert_into_array(file, add_data, insert_pos)
+
         data_path = self.config.data.path
         if self.config.data.need_create:
             create_path(data_path)
@@ -33,9 +69,19 @@ class Tester:
             data_size = human_read_to_bytes(self.config.data.size)
             min_file_size = human_read_to_bytes(self.config.data.min_file_size)
             max_file_size = human_read_to_bytes(self.config.data.max_file_size)
+            min_change_size = human_read_to_bytes(self.config.data.min_change_size)
+            max_change_size = human_read_to_bytes(self.config.data.max_change_size)
+
+            max_change_blocks = int(self.config.data.max_change_blocks)
+            min_change_blocks = int(self.config.data.min_change_blocks)
+            remove_percentage = int(self.config.data.remove_shance_percentage)
+            base_file = os.urandom(min_file_size)
             while get_dir_size_bytes(data_path) < data_size:
                 file_path = os.path.join(data_path, f"{uuid.uuid4()}.txt")
-                os.system(f"head -c {random.randint(min_file_size, max_file_size)} </dev/urandom >{file_path}")
+                base_file = modify_file(base_file, min_change_size, max_change_size, min_change_blocks,
+                                        max_change_blocks, remove_percentage)
+                base_file = fit_size_requirements(base_file, min_file_size, max_file_size)
+                write_file(file_path, base_file)
         total_size = get_dir_size_bytes(data_path)
         logger.info(f"Test dir {data_path} with size {total_size / 1024 / 1024:.2f} MB")
         return total_size
@@ -63,8 +109,10 @@ class Tester:
                     file_ids, total_upload_time = self.__test_upload_data(test_files)
                     total_download_time = self.__test_download_file(file_ids)
                     self.__compute_deduplication(hash_function, block_size, hash_function_info_path)
-                    self.__compute_time(total_upload_time, hash_function, block_size, f"upload_{hash_function}", hash_function_info_path)
-                    self.__compute_time(total_download_time, hash_function, block_size, f"download_{hash_function}", hash_function_info_path)
+                    self.__compute_time(total_upload_time, hash_function, block_size, f"upload_{hash_function}",
+                                        hash_function_info_path)
+                    self.__compute_time(total_download_time, hash_function, block_size, f"download_{hash_function}",
+                                        hash_function_info_path)
                     stop_dockers(project_path, storage_path)
                 plot_deduplication(hash_function, hash_function_info_path, plots_path)
                 plot_time(hash_function, hash_function_info_path, plots_path)
@@ -82,7 +130,8 @@ class Tester:
             if "BLOCK_SIZE" in env_var.split("="):
                 docker_compose_dict["services"]["app"]["environment"][index] = f"BLOCK_SIZE={block_size}"
             if "BASE_PATH" in env_var.split("="):
-                docker_compose_dict["services"]["app"]["environment"][index] = f"BASE_PATH={self.config.project.storage_path}"
+                docker_compose_dict["services"]["app"]["environment"][
+                    index] = f"BASE_PATH={self.config.project.storage_path}"
 
         with open(os.path.join(self.config.project.path, "docker-compose.yml"), "w") as docker_compose_file:
             self.yaml.dump(docker_compose_dict, docker_compose_file)
@@ -102,7 +151,8 @@ class Tester:
                 if upload_data.status_code // 100 == 2:
                     total_upload_time.append({"time": upload_time,
                                               "file_size": os.stat(upload_file_path).st_size})
-                    files_ids.append({"file_id": upload_data.text, "file_ext": os.path.splitext(upload_file_name)[1][1:]})
+                    files_ids.append(
+                        {"file_id": upload_data.text, "file_ext": os.path.splitext(upload_file_name)[1][1:]})
         return files_ids, total_upload_time
 
     def __test_download_file(self, file_ids):

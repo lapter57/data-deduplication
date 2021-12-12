@@ -2,8 +2,13 @@ data:
   need_create: true
   path: test_data
   size: 2 GB
-  min_file_size: 1 MB
-  max_file_size: 30 MB
+  min_change_size: 1 MB
+  max_change_size: 10 MB
+  min_file_size: 30 MB
+  max_file_size: 40 MB
+  min_change_blocks: 1
+  max_change_blocks: 10
+  remove_shance_percentage: 10
 
 block:
   min_size: 512 B
